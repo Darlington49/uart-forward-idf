@@ -23,25 +23,9 @@
 #define KEEPALIVE_INTERVAL 5
 #define KEEPALIVE_COUNT 3
 
-static const char *TAG = "wifi_connect";
+static const char *TAG_Telnet = "TAG_Telnet";
 
 static char tag[] = "telnet";
-
-static void recvData(uint8_t *buffer, size_t size)
-{
-    char responseMessage[100];
-    ESP_LOGI(tag, "We received: %.*s", size, buffer);
-    sprintf(responseMessage, "Thanks for %d bytes of data\n", size);
-    telnet_esp32_sendData((uint8_t *)responseMessage, strlen(responseMessage));
-}
-
-static void telnetTask(void *data)
-{
-    ESP_LOGI(tag, ">> telnetTask");
-    telnet_esp32_listenForClients(recvData);
-    ESP_LOGI(tag, "<< telnetTask");
-    vTaskDelete(NULL);
-}
 
 static void do_retransmit(const int sock)
 {
@@ -53,16 +37,16 @@ static void do_retransmit(const int sock)
         len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
         if (len < 0)
         {
-            ESP_LOGE(TAG, "Error occurred during receiving: errno %d", errno);
+            ESP_LOGE(TAG_Telnet, "Error occurred during receiving: errno %d", errno);
         }
         else if (len == 0)
         {
-            ESP_LOGW(TAG, "Connection closed");
+            ESP_LOGW(TAG_Telnet, "Connection closed");
         }
         else
         {
             rx_buffer[len] = 0; // Null-terminate whatever is received and treat it like a string
-            ESP_LOGI(TAG, "Received %d bytes: %s", len, rx_buffer);
+            ESP_LOGI(TAG_Telnet, "Received %d bytes: %s", len, rx_buffer);
 
             // send() can return less bytes than supplied length.
             // Walk-around for robust implementation.
@@ -72,7 +56,7 @@ static void do_retransmit(const int sock)
                 int written = send(sock, rx_buffer + (len - to_write), to_write, 0);
                 if (written < 0)
                 {
-                    ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+                    ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d", errno);
                 }
                 to_write -= written;
             }
@@ -103,42 +87,42 @@ static void tcp_server_task(void *pvParameters)
     int listen_sock = socket(addr_family, SOCK_STREAM, ip_protocol);
     if (listen_sock < 0)
     {
-        ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
+        ESP_LOGE(TAG_Telnet, "Unable to create socket: errno %d", errno);
         vTaskDelete(NULL);
         return;
     }
     int opt = 1;
     setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    ESP_LOGI(TAG, "Socket created");
+    ESP_LOGI(TAG_Telnet, "Socket created");
 
     int err = bind(listen_sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
     if (err != 0)
     {
-        ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
-        ESP_LOGE(TAG, "IPPROTO: %d", addr_family);
+        ESP_LOGE(TAG_Telnet, "Socket unable to bind: errno %d", errno);
+        ESP_LOGE(TAG_Telnet, "IPPROTO: %d", addr_family);
         goto CLEAN_UP;
     }
-    ESP_LOGI(TAG, "Socket bound, port %d", PORT);
+    ESP_LOGI(TAG_Telnet, "Socket bound, port %d", PORT);
 
     err = listen(listen_sock, 1);
     if (err != 0)
     {
-        ESP_LOGE(TAG, "Error occurred during listen: errno %d", errno);
+        ESP_LOGE(TAG_Telnet, "Error occurred during listen: errno %d", errno);
         goto CLEAN_UP;
     }
 
     while (1)
     {
 
-        ESP_LOGI(TAG, "Socket listening");
+        ESP_LOGI(TAG_Telnet, "Socket listening");
 
         struct sockaddr_storage source_addr; // Large enough for both IPv4 or IPv6
         socklen_t addr_len = sizeof(source_addr);
         int sock = accept(listen_sock, (struct sockaddr *)&source_addr, &addr_len);
         if (sock < 0)
         {
-            ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
+            ESP_LOGE(TAG_Telnet, "Unable to accept connection: errno %d", errno);
             break;
         }
 
@@ -158,7 +142,7 @@ static void tcp_server_task(void *pvParameters)
             inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
         }
 #endif
-        ESP_LOGI(TAG, "Socket accepted ip address: %s", addr_str);
+        ESP_LOGI(TAG_Telnet, "Socket accepted ip address: %s", addr_str);
 
         do_retransmit(sock);
 
