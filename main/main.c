@@ -182,6 +182,13 @@ static void do_retransmit(const int sock)
 
     do
     {
+        // int written = send(sock, "1234", 4, 0);
+
+        // if (written < 0)
+        // {
+        //     ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d (%s)", errno, strerror(errno));
+        // }
+
         len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
         if (len < 0)
         {
@@ -222,6 +229,7 @@ static void tcp_server_task(void *pvParameters)
     int keepInterval = KEEPALIVE_INTERVAL;
     int keepCount = KEEPALIVE_COUNT;
     struct sockaddr_storage dest_addr;
+    payload_ext_t payload_ext;
 
     if (addr_family == AF_INET)
     {
@@ -284,15 +292,40 @@ static void tcp_server_task(void *pvParameters)
         {
             inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
         }
-#ifdef CONFIG_EXAMPLE_IPV6
-        else if (source_addr.ss_family == PF_INET6)
-        {
-            inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
-        }
-#endif
+
         ESP_LOGI(TAG_Telnet, "Socket accepted ip address: %s", addr_str);
 
-        do_retransmit(sock);
+        // do_retransmit(sock);
+        // while (1)
+        // {
+        //     int written = send(sock, "1234", 4, 0);
+
+        //     if (written < 0)
+        //     {
+        //         ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d (%s)", errno, strerror(errno));
+        //     }
+        // }
+
+        for (;;)
+        {
+            ESP_LOGI(TAG, "Check the queue");
+            // Waiting for the queue UART event.
+            if (xQueueReceive(message_received_queue, (void *)&payload_ext, 1000 / portTICK_PERIOD_MS))
+            {
+                ESP_LOGI(TAG, "Received Data from the queue");
+                int written = send(sock, payload_ext.data, strlen(payload_ext.data), 0);
+
+                if (written < 0)
+                {
+                    ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d (%s)", errno, strerror(errno));
+                }
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Queue may be void");
+            }
+            // vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
 
         shutdown(sock, 0);
         close(sock);
