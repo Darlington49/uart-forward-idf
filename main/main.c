@@ -318,6 +318,10 @@ static void tcp_server_task(void *pvParameters)
                 if (written < 0)
                 {
                     ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d (%s)", errno, strerror(errno));
+                    //elementr retreived has tobe added again in front or in back has ro be reviewd and taken in consideration
+                    shutdown(sock, 0);
+                    close(sock);
+                    break;
                 }
             }
             else
@@ -327,8 +331,8 @@ static void tcp_server_task(void *pvParameters)
             // vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
 
-        shutdown(sock, 0);
-        close(sock);
+        // shutdown(sock, 0);
+        // close(sock);
     }
 
 CLEAN_UP:
