@@ -1,4 +1,5 @@
 #include "serial.h" /* Include the header (not strictly necessary here) */
+const static char *TAG_uart = "uart_events";
 
 /** Uart Start**/
 
@@ -13,7 +14,7 @@ void uart_event_task(void *pvParameters)
         if (xQueueReceive(uart0_queue, (void *)&event, (portTickType)portMAX_DELAY))
         {
             bzero(dtmp, RD_BUF_SIZE);
-            ESP_LOGI(TAG, "uart[%d] event:", EX_UART_NUM);
+            ESP_LOGI(TAG_uart, "uart[%d] event:", EX_UART_NUM);
             switch (event.type)
             {
             // Event of UART receving data
@@ -21,9 +22,9 @@ void uart_event_task(void *pvParameters)
             other types of events. If we take too much time on data event, the queue might
             be full.*/
             case UART_DATA:
-                ESP_LOGI(TAG, "[UART DATA]: %d", event.size);
+                ESP_LOGI(TAG_uart, "[UART DATA]: %d", event.size);
                 uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
-                // ESP_LOGI(TAG, "[DATA EVT]:");
+                // ESP_LOGI(TAG_uart, "[DATA EVT]:");
                 // uart_write_bytes(EX_UART_NUM, (const char *)dtmp, event.size);
 
                 // Fill the queue with check mecanism
@@ -33,16 +34,16 @@ void uart_event_task(void *pvParameters)
                 // check if the queue is not full if
                 if (xQueueSend(message_received_queue, &payload_ext, 0) == pdTRUE)
                 {
-                    ESP_LOGI(TAG, "message added to the queue");
+                    ESP_LOGI(TAG_uart, "message added to the queue");
                 }
                 else
                 {
-                    ESP_LOGE(TAG, "message added to the queue maybe full");
+                    ESP_LOGE(TAG_uart, "message added to the queue maybe full");
                 }
                 break;
             // Event of HW FIFO overflow detected
             case UART_FIFO_OVF:
-                ESP_LOGI(TAG, "hw fifo overflow");
+                ESP_LOGI(TAG_uart, "hw fifo overflow");
                 // If fifo overflow happened, you should consider adding flow control for your application.
                 // The ISR has already reset the rx FIFO,
                 // As an example, we directly flush the rx buffer here in order to read more data.
@@ -51,7 +52,7 @@ void uart_event_task(void *pvParameters)
                 break;
             // Event of UART ring buffer full
             case UART_BUFFER_FULL:
-                ESP_LOGI(TAG, "ring buffer full");
+                ESP_LOGI(TAG_uart, "ring buffer full");
                 // If buffer full happened, you should consider encreasing your buffer size
                 // As an example, we directly flush the rx buffer here in order to read more data.
                 uart_flush_input(EX_UART_NUM);
@@ -59,21 +60,21 @@ void uart_event_task(void *pvParameters)
                 break;
             // Event of UART RX break detected
             case UART_BREAK:
-                ESP_LOGI(TAG, "uart rx break");
+                ESP_LOGI(TAG_uart, "uart rx break");
                 break;
             // Event of UART parity check error
             case UART_PARITY_ERR:
-                ESP_LOGI(TAG, "uart parity error");
+                ESP_LOGI(TAG_uart, "uart parity error");
                 break;
             // Event of UART frame error
             case UART_FRAME_ERR:
-                ESP_LOGI(TAG, "uart frame error");
+                ESP_LOGI(TAG_uart, "uart frame error");
                 break;
             // UART_PATTERN_DET
             case UART_PATTERN_DET:
                 uart_get_buffered_data_len(EX_UART_NUM, &buffered_size);
                 int pos = uart_pattern_pop_pos(EX_UART_NUM);
-                ESP_LOGI(TAG, "[UART PATTERN DETECTED] pos: %d, buffered size: %d", pos, buffered_size);
+                ESP_LOGI(TAG_uart, "[UART PATTERN DETECTED] pos: %d, buffered size: %d", pos, buffered_size);
                 if (pos == -1)
                 {
                     // There used to be a UART_PATTERN_DET event, but the pattern position queue is full so that it can not
@@ -87,13 +88,13 @@ void uart_event_task(void *pvParameters)
                     uint8_t pat[PATTERN_CHR_NUM + 1];
                     memset(pat, 0, sizeof(pat));
                     uart_read_bytes(EX_UART_NUM, pat, PATTERN_CHR_NUM, 100 / portTICK_PERIOD_MS);
-                    ESP_LOGI(TAG, "read data: %s", dtmp);
-                    ESP_LOGI(TAG, "read pat : %s", pat);
+                    ESP_LOGI(TAG_uart, "read data: %s", dtmp);
+                    ESP_LOGI(TAG_uart, "read pat : %s", pat);
                 }
                 break;
             // Others
             default:
-                ESP_LOGI(TAG, "uart event type: %d", event.type);
+                ESP_LOGI(TAG_uart, "uart event type: %d", event.type);
                 break;
             }
         }
@@ -105,7 +106,7 @@ void uart_event_task(void *pvParameters)
 
 void uart_init()
 {
-    esp_log_level_set(TAG, ESP_LOG_INFO);
+    esp_log_level_set(TAG_uart, ESP_LOG_INFO);
 
     /* Configure parameters of an UART driver,
      * communication pins and install the driver */
@@ -122,7 +123,7 @@ void uart_init()
     uart_param_config(EX_UART_NUM, &uart_config);
 
     // Set UART log level
-    esp_log_level_set(TAG, ESP_LOG_INFO);
+    esp_log_level_set(TAG_uart, ESP_LOG_INFO);
     // Set UART pins (using UART0 default pins ie no changes.)
     uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 

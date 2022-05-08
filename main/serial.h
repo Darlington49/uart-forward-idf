@@ -10,7 +10,6 @@
 #include "esp_system.h"
 #include "esp_event.h"
 
-static const char *TAG = "uart_events";
 #define BUF_SIZE (1024)
 #define RD_BUF_SIZE (BUF_SIZE)
 typedef struct payload_ext_t

@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "connect.h": "c",
-        "serial.h": "c"
+        "serial.h": "c",
+        "tcp.h": "c"
     }
 }
