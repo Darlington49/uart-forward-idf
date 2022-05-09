@@ -2,6 +2,7 @@
     "files.associations": {
         "connect.h": "c",
         "serial.h": "c",
-        "tcp.h": "c"
+        "tcp.h": "c",
+        "mqtt.h": "c"
     }
 }

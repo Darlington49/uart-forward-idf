@@ -6,7 +6,7 @@
 #include "esp_system.h"
 #include "esp_event.h"
 
-#include "telnet.h"
+// #include "telnet.h"
 
 #include <string.h>
 #include <sys/param.h>
@@ -19,6 +19,7 @@
 #include "serial.h"
 #include "tcp.h"
 #include "connect.h"
+#include "mqtt.h"
 
 void app_main(void)
 {
@@ -31,7 +32,11 @@ void app_main(void)
     uart_init();
     // Uart Task creation
     xTaskCreate(uart_event_task, "uart_event_task", 4096, NULL, 12, NULL);
-    wifi_init();
+     wifi_init();
+
+    // Mqtt init
+     init_MQTT();
+
     ESP_ERROR_CHECK(wifi_connect_sta("AndroidAP9CB9", "00000000", 10000));
     xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET, 5, NULL);
 }
