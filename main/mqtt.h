@@ -1,5 +1,5 @@
-#ifndef mqtts_H_ /* Include guard */
-#define mqtts_H_
+#ifndef mqtt_H_ /* Include guard */
+#define mqtt_H_
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
