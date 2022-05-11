@@ -3,6 +3,8 @@
         "connect.h": "c",
         "serial.h": "c",
         "tcp.h": "c",
-        "mqtt.h": "c"
+        "mqtt.h": "c",
+        "main.h": "c",
+        "param.h": "c"
     }
 }
