@@ -17,6 +17,8 @@ void app_main(void)
 
     // Uart Queue Creation;
     message_received_queue = xQueueCreate(10, sizeof(payload_ext_t));
+    message_tcp_queue = xQueueCreate(10, sizeof(payload_ext_t));
+    message_file_queue = xQueueCreate(10, sizeof(payload_ext_t));
 
     sdcard_init();
 

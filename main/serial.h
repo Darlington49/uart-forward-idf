@@ -24,6 +24,8 @@ typedef struct payload_ext_t
 
 QueueHandle_t uart0_queue;
 QueueHandle_t message_received_queue;
+QueueHandle_t message_tcp_queue;
+QueueHandle_t message_file_queue;
 
 void uart_event_task(void *pvParameters);
 void uart_init();
