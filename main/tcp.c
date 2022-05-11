@@ -126,23 +126,44 @@ void tcp_server_task(void *pvParameters)
         {
             ESP_LOGI(TAG_Telnet, "Check the queue");
             // Waiting for the queue UART event.
-            if (xQueueReceive(message_received_queue, (void *)&payload_ext, 1000 / portTICK_PERIOD_MS))
+            if (xQueueReceive(message_tcp_queue, (void *)&payload_ext, 1000 / portTICK_PERIOD_MS))
             {
-                ESP_LOGI(TAG_Telnet, "Received Data from the queue");
+                ESP_LOGI(TAG_Telnet, "Received Data from tcp queue");
                 int written = send(sock, payload_ext.data, strlen(payload_ext.data), 0);
 
                 if (written < 0)
                 {
                     ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d (%s)", errno, strerror(errno));
                     // elementr retreived has tobe added again in front or in back has ro be reviewd and taken in consideration
-                    // two elements are lost 
+                    // two elements are lost
                     // https://www.freertos.org/xQueueSendToFront.html
                     break;
                 }
             }
             else
             {
-                ESP_LOGE(TAG_Telnet, "Queue may be void");
+                ESP_LOGE(TAG_Telnet, "tcp Queue may be void");
+            }
+
+            // Waiting for the queue UART event.
+            if (xQueueReceive(message_tcp_queue, (void *)&payload_ext, 1000 / portTICK_PERIOD_MS))
+            {
+                ESP_LOGI(TAG_Telnet, "Received Data from file queue");
+                appendFile("/hello658.txt", payload_ext.data);
+                // have to retuen if succesfully appended
+
+                // if (written < 0)
+                // {
+                //     ESP_LOGE(TAG_Telnet, "Error occurred during sending: errno %d (%s)", errno, strerror(errno));
+                //     // elementr retreived has tobe added again in front or in back has ro be reviewd and taken in consideration
+                //     // two elements are lost
+                //     // https://www.freertos.org/xQueueSendToFront.html
+                //     break;
+                // }
+            }
+            else
+            {
+                ESP_LOGE(TAG_Telnet, "file Queue may be void");
             }
             // vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
