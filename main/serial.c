@@ -31,17 +31,30 @@ void uart_event_task(void *pvParameters)
                 payload_ext_t payload_ext;
                 payload_ext.count = 5;
                 strcpy(payload_ext.data, (const char *)dtmp);
-                appendFile("/hello658.txt", (const char *)dtmp);
+                //  fill the tcp queue
                 // check if the queue is not full if
-                if (xQueueSend(message_received_queue, &payload_ext, 0) == pdTRUE)
+                if (xQueueSend(message_tcp_queue, &payload_ext, 0) == pdTRUE)
                 {
-                    ESP_LOGI(TAG_uart, "message added to the queue");
+                    ESP_LOGI(TAG_uart, "message added to tcp queue");
                 }
                 else
                 {
-                    ESP_LOGE(TAG_uart, "message added to the queue maybe full");
+                    ESP_LOGE(TAG_uart, "the tcp queue maybe full");
                 }
                 break;
+
+                //  fill the file queue
+                // check if the queue is not full if
+                if (xQueueSend(message_file_queue, &payload_ext, 0) == pdTRUE)
+                {
+                    ESP_LOGI(TAG_uart, "message added to file queue");
+                }
+                else
+                {
+                    ESP_LOGE(TAG_uart, "the file queue maybe full");
+                }
+                break;
+
             // Event of HW FIFO overflow detected
             case UART_FIFO_OVF:
                 ESP_LOGI(TAG_uart, "hw fifo overflow");
