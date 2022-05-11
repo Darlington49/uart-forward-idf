@@ -5,6 +5,7 @@
         "tcp.h": "c",
         "mqtt.h": "c",
         "main.h": "c",
-        "param.h": "c"
+        "param.h": "c",
+        "sdcard.h": "c"
     }
 }
