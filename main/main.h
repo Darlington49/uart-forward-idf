@@ -22,4 +22,6 @@
 #include "tcp.h"
 #include "connect.h"
 #include "mqtt.h"
+#include "sdcard.h"
+
 #endif
