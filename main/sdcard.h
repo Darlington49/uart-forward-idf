@@ -21,4 +21,7 @@
 void sdcard_init();
 
 void test();
+void appendFile(char file[],
+                char text[]);
+
 #endif
