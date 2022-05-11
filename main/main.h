@@ -23,5 +23,6 @@
 #include "connect.h"
 #include "mqtt.h"
 #include "sdcard.h"
+#include "file_server.h"
 
 #endif

@@ -35,5 +35,5 @@ void app_main(void)
     ESP_ERROR_CHECK(wifi_connect_sta("AndroidAP9CB9", "00000000", 10000));
     xTaskCreate(tcp_server_task, "tcp_server", 4096, (void *)AF_INET, 5, NULL);
 
-    // test();
+    ESP_ERROR_CHECK(start_file_server(MOUNT_POINT));
 }
