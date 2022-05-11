@@ -9,6 +9,7 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "esp_event.h"
+#include "sdcard.h"
 
 #define BUF_SIZE (1024)
 #define RD_BUF_SIZE (BUF_SIZE)

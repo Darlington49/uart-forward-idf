@@ -31,6 +31,7 @@ void uart_event_task(void *pvParameters)
                 payload_ext_t payload_ext;
                 payload_ext.count = 5;
                 strcpy(payload_ext.data, (const char *)dtmp);
+                appendFile("/hello658.txt", (const char *)dtmp);
                 // check if the queue is not full if
                 if (xQueueSend(message_received_queue, &payload_ext, 0) == pdTRUE)
                 {
