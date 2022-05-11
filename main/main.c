@@ -1,3 +1,14 @@
+
+
+
+//TODO : Sd Card
+//TODO : Web Server
+//TODO : Modify Uart (baude rate, parity,...) Trought SERVER
+//TODO : Accss Sd through web server
+//TODO : File manipulation Sd through web server
+
+
+
 #include "main.h"
 
 void app_main(void)
